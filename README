@@ -1,0 +1,14 @@
+A simple game counter.
+
+When you start a game, it will prompt you for the number of counters and the
+initial value of each counter.
+
+Click on the player labels to change them.
+
+To use the counters:
+- Spacebar advances to the next counter.
+- Up and Down increment and decrement the current counter.
+
+If you forget the keyboard shortcuts, you can press ?.
+
+Enjoy!

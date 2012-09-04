@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>title</title>
+    <style>
+        * {
+            -moz-box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+        }
+        html, body, ul {
+            height: 100%;
+        }
+        li {
+            color: #888;
+            float: left;
+            height: 50%;
+            list-style-type: none;
+            position: relative;
+        }
+        li b {
+            display: block;
+            text-align: center;
+            font-size: 130px;
+            position: absolute;
+            top: 30%;
+            left: 0;
+            width: 100%;
+        }
+        li h1 {
+            font-size: 40px;
+            line-height: 44px;
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+        }
+        li.active {
+            background: #eee;
+            color: #000;
+        }
+        ul button {
+            width: 50%;
+            float: left;
+        }
+        pre {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            width: 300px;
+            height: 200px;
+            padding: 30px;
+            display: none;
+            background: #fff;
+            border: 1px solid black;
+            text-align: right;
+            line-height: 30px;
+            margin: auto;
+        }
+        pre b {
+            float: left;
+        }
+    </style>
+  </head>
+  <body>
+    <script type="text/template" id="counter">
+        <li>
+            <b>0</b>
+            <h1></h1>
+        </li>
+    </script>
+    <ul>
+    </ul>
+<pre>
+<b>space</b> next counter
+<b>down</b> decrement counter
+<b>up</b> increment counter
+<b>n g</b> new game
+</pre>
+    <script src="jquery.min.js"></script>
+    <script src="mousetrap.min.js"></script>
+    <script>
+        var numCounters = 0;
+        var currentCounter = 0;
+        var counterTemplate = $('#counter').html();
+
+        Mousetrap.bind('space', nextCounter);
+        Mousetrap.bind('up', incCurrentCounter);
+        Mousetrap.bind('down', decCurrentCounter);
+        Mousetrap.bind('n g', newGame);
+
+        Mousetrap.bind('?', function() {
+            $('pre').toggle();
+        });
+
+        $('ul').on('click', 'h1', function() {
+            var el = $(this);
+            el.text(prompt('Name?') || ('Player ' + (el.index() + 1)));
+            updateCounters();
+        });
+        function nextCounter() {
+            currentCounter++;
+            currentCounter %= numCounters;
+            updateCounters();
+        }
+        function incCurrentCounter() {
+            var c = $('li').eq(currentCounter);
+            c.find('b').text(parseInt(c.text(),10)+1);
+        }
+        function decCurrentCounter() {
+            var c = $('li').eq(currentCounter);
+            c.find('b').text(parseInt(c.text(),10)-1);
+        }
+        function updateCounters() {
+            $('ul li').removeClass('active').eq(currentCounter).addClass('active');
+            localStorage['last-state'] = $('ul').html();
+        }
+        function newGame() {
+            var newNum;
+            var newLi;
+            do {
+                newNum = prompt('How many counters?', numCounters);
+            } while (!parseInt(newNum, 10));
+
+            if (numCounters != newNum) {
+                if (newNum < numCounters) {
+                    for (var i=0; i<numCounters-newNum; i++) {
+                        $('li').eq(numCounters-i-1).remove();
+                    }
+                } else {
+                    for (var i=numCounters; i<newNum; i++) {
+                        newLi = $(counterTemplate);
+                        newLi.find('h1').text('Player ' + (i +1));
+                        $('ul').append(newLi);
+                    }
+                }
+            }
+            numCounters = newNum;
+
+            if (numCounters > 3) {
+                $('li').css({
+                    'width': (100 / Math.ceil(numCounters / 2)) + '%',
+                    'height': '50%'
+                });
+            } else {
+                $('li').css({
+                    'width': (100 / numCounters) + '%',
+                    'height': '100%'
+                });
+            }
+
+            newNum = parseInt(prompt('Initial value?', 0), 10) || 0;
+            $('li b').text(newNum);
+            currentCounter = 0;
+            updateCounters();
+        }
+
+        $(function() {
+            $('ul').html(localStorage['last-state']);
+            numCounters = $('li').length;
+            currentCounter = $('li.active').index();
+            if (!numCounters) {
+                newGame();
+            }
+        });
+    </script>
+  </body>
+</html>
